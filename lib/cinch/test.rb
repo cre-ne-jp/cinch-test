@@ -1,9 +1,6 @@
 require 'cinch'
-
 require 'pathname'
 require 'thread'
-
-load Pathname.new(__FILE__).dirname.join('test/version.rb')
 
 module Cinch
   module Test
