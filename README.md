@@ -1,10 +1,10 @@
 # Cinch::Test
 
 [![Gem Version](https://badge.fury.io/rb/cinch-test.png)](http://badge.fury.io/rb/cinch-test)
-[![Dependency Status](https://gemnasium.com/bhaberer/cinch-test.png)](https://gemnasium.com/jayferd/cinch-test)
-[![Build Status](https://travis-ci.org/bhaberer/cinch-test.png?branch=master)](https://travis-ci.org/jayferd/cinch-test)
-[![Coverage Status](https://coveralls.io/repos/bhaberer/cinch-test/badge.png?branch=master)](https://coveralls.io/r/jayferd/cinch-test?branch=master)
-[![Code Climate](https://codeclimate.com/github/bhaberer/cinch-test.png)](https://codeclimate.com/github/jayferd/cinch-test)
+[![Dependency Status](https://gemnasium.com/bhaberer/cinch-test.png)](https://gemnasium.com/bhaberer/cinch-test)
+[![Build Status](https://travis-ci.org/bhaberer/cinch-test.png?branch=master)](https://travis-ci.org/bhaberer/cinch-test)
+[![Coverage Status](https://coveralls.io/repos/bhaberer/cinch-test/badge.png?branch=master)](https://coveralls.io/r/bhaberer/cinch-test?branch=master)
+[![Code Climate](https://codeclimate.com/github/bhaberer/cinch-test.png)](https://codeclimate.com/github/bhaberer/cinch-test)
 
 ## Usage
 
