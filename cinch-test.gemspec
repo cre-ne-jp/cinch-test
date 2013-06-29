@@ -19,6 +19,11 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'coveralls'
+  gem.add_development_dependency 'minitest'
+  gem.add_development_dependency 'wrong'
+  gem.add_development_dependency 'rake'
+  gem.add_development_dependency 'rr'
+  gem.add_development_dependency 'debugger'
 
   gem.add_dependency 'cinch',       '~> 2.0.0'
 end
