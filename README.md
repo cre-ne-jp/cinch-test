@@ -13,3 +13,13 @@
 3. Make a message with `make_message(bot, 'message text')`
 4. Stub things out on the message as you like, then collect all the replies
    with `get_replies(message)`
+
+## Changelog
+* 0.0.3
+    * [Bug Fix] Initializing plugins without a config hash works now.
+    * [Bug Fix] MockMessage objects now have a real Cinch::User / Cinch::Channel object
+        instead of strings.
+    * [Bug Fix] MockMessages with a channel set will also be processed as a :channel event.
+    * [Bug Fix] MockMessages of :private events will now also be processed as :message
+    * [Bug Fix] All MockMessages will now be processed in as a :catchall event type in
+        addition to other specified types.
