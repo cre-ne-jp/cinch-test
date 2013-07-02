@@ -10,29 +10,44 @@ describe Cinch::Test do
       @foo = config[:foo]
     end
 
-    match /foo/, :method => :foo
+    match /foo/, method: :foo
     def foo(m)
       m.reply "foo: #{@foo}"
     end
 
-    match /bar/, :method => :bar
+    match /bar/, method: :bar
     def bar(m)
       m.reply 'bar reply'
     end
 
-    match /baz/, :method => :baz
+    match /baz/, method: :baz
     def baz(m)
       m.reply 'baz reply', true
     end
 
-    listen_to :channel
-    def listen(m)
-      m.reply 'I listen'
+    listen_to :channel, method: :chan_listen
+    def chan_listen(m)
+      m.reply 'I listen' if m.message == 'blah'
     end
 
-    match /trout/, :method => :action, :react_on => :action
+    match /trout/, method: :action, react_on: :action
     def action(m)
       m.reply 'I hate fish'
+    end
+
+    match /ping/, method: :ping
+    def ping(m)
+      m.channel.send 'Pong?'
+    end
+
+    match /dance/, method: :dance
+    def dance(m)
+      m.channel.action 'DANCES'
+    end
+
+    match /message/, method: :message
+    def message(m)
+      m.user.send 'a message!'
     end
   end
 
@@ -52,33 +67,50 @@ describe Cinch::Test do
   it 'makes a bot with config values available to the plugin' do
     message = make_message(bot, '!foo')
     replies = get_replies(message)
-    assert replies == ['foo: foo_value']
+    assert replies.first.text == 'foo: foo_value'
   end
 
-  describe '#make_message' do
-    let(:message) { make_message(bot, '!bar') }
+  describe 'message events' do
 
     it 'messages a test bot and gets a reply' do
+      message = make_message(bot, '!bar')
       replies = get_replies(message)
-      assert replies == ['bar reply']
+      assert replies.first.text == 'bar reply'
     end
-  end
 
-  describe '#make_message with reply' do
     let(:message) { make_message(bot, '!baz') }
 
     it 'messages a test bot and gets a prefixed reply' do
       replies = get_replies(message)
-      assert replies == ['test: baz reply']
+      assert replies.first.text == 'test: baz reply'
     end
   end
 
-  describe 'listeners' do
-    let(:message) { make_message(bot, 'blah blah blah', :channel => 'test') }
+  describe 'user events' do
+    it 'captures messages sent to users' do
+      r = get_replies(make_message(bot, '!message', :channel => '#test')).first
+      assert r.text == 'a message!'
+      assert r.event == :private
+    end
+  end
 
-    it 'messages a test bot and gets a prefixed reply' do
+  describe 'channel events' do
+    it 'get triggered by channel events' do
+      message = make_message(bot, 'blah', :channel => 'test')
       replies = get_replies(message)
-      assert replies == ['I listen']
+      assert replies.first.text == 'I listen'
+    end
+
+    it 'captures channel messages' do
+      r = get_replies(make_message(bot, '!ping', :channel => '#test')).first
+      assert r.text == 'Pong?'
+      assert r.event == :channel
+    end
+
+    it 'captures a channel action' do
+      r = get_replies(make_message(bot, '!dance', :channel => '#test')).first
+      assert r.text == 'DANCES'
+      assert r.event == :action
     end
   end
 end

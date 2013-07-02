@@ -5,7 +5,7 @@ require 'thread'
 module Cinch
   module Test
     class MockIRC < Cinch::IRC
-      def initialize(*)
+      def initialize(*args)
         super
         # the #setup method adds the @network property among
         # other things
@@ -20,7 +20,7 @@ module Cinch
     end
 
     class MockBot < Cinch::Bot
-      def initialize(*)
+      def initialize(*args)
         super
         @irc = MockIRC.new(self)
 
@@ -34,7 +34,7 @@ module Cinch
     end
 
     class MockMessage < Cinch::Message
-      def initialize(msg, bot, opts={})
+      def initialize(msg, bot, opts = {})
         # override the message-parsing stuff
         super(nil, bot)
         @message = msg
@@ -44,6 +44,8 @@ module Cinch
         @bot.user_list.find_ensured(nil, @user.nick, nil)
       end
     end
+
+    Reply = Struct.new(:text, :event, :time)
 
     def make_bot(plugin, opts = {}, &b)
       MockBot.new do
@@ -60,11 +62,62 @@ module Cinch
       end
     end
 
-    def make_message(bot, text, opts={})
+    def make_message(bot, text, opts = {})
       MockMessage.new(text, bot, opts)
     end
 
-    def send_message(message, event = :message)
+    # Process message and return all replies.
+    # @parmam [Cinch::Test::MockMessage] message A MockMessage object.
+    # @param [Symbol] event The event type of the message.
+    def get_replies(message, event = :message)
+      mutex = Mutex.new
+      replies = []
+
+      # Catch all m.reply
+      (class << message; self; end).class_eval do
+        define_method :reply do |msg, prefix = false|
+          msg = [self.user.nick, msg].join(': ') if prefix
+          r = Reply.new(msg, :message, Time.now)
+          mutex.synchronize { replies << r }
+        end
+      end
+
+      # Catch all user.(msg|send|privmsg)
+      (class << message.user; self; end).class_eval do
+        [:send, :msg, :privmsg].each do |method|
+          define_method method do |msg, notice = false|
+            r = Reply.new(msg, (notice ? :notice : :private), Time.now)
+            mutex.synchronize { replies << r }
+          end
+        end
+      end
+
+      # Catch all channel.send and action
+      if message.channel
+        (class << message.channel; self; end).class_eval do
+          define_method :send do |msg, notice = false|
+            r = Reply.new(msg, :channel, Time.now)
+            mutex.synchronize { replies << r }
+          end
+
+          define_method :action do |msg, notice = false|
+            r = Reply.new(msg, :action, Time.now)
+            mutex.synchronize { replies << r }
+          end
+        end
+      end
+
+      process_message(message, event)
+
+      replies
+    end
+
+    private
+
+    # Process message by dispatching it to the handlers
+    # @param [Cinch::Test::MockMessage] message A MockMessage object.
+    # @param [Symbol] event The event type of the message.
+    def process_message(message, event)
       handlers = message.bot.handlers
 
       # Deal with secondary event types
@@ -85,23 +138,6 @@ module Cinch
       handlers.each do |handler|
         handler.thread_group.list.each(&:join)
       end
-    end
-
-    def get_replies(message, event=:message)
-      mutex = Mutex.new
-
-      replies = []
-
-      (class << message; self; end).class_eval do
-        define_method :reply do |r, prefix = false|
-          r = [self.user.nick, r].join(': ') if prefix
-          mutex.synchronize { replies << r }
-        end
-      end
-
-      send_message(message, event)
-
-      replies
     end
   end
 end
