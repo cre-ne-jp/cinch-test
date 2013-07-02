@@ -15,7 +15,12 @@
    with `get_replies(message)`
 
 ## Changelog
-* 0.0.3
+* 0.0.4 (July 2, 2013)
+    * [Bug Fix] Should now capture any user.send|notice|privmsg, channel.send|action events that
+        were previously ignored.
+    * [Enhancement] replies are now returned as Struct(:message, :event, :time) for more 
+        sane testing.
+* 0.0.3 (June 6, 2013)
     * [Bug Fix] Initializing plugins without a config hash works now.
     * [Bug Fix] MockMessage objects now have a real Cinch::User / Cinch::Channel object
         instead of strings.
