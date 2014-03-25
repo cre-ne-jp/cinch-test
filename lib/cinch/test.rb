@@ -29,7 +29,9 @@ module Cinch
         # by default this is done in #start, which also
         # overrides @irc and calls @irc.start, which does
         # network i/o. :(
-        @plugins.register_plugins(@config.plugins.plugins)
+        unless @config.plugins.plugins.empty?
+          @plugins.register_plugins(@config.plugins.plugins)
+        end
       end
     end
 
@@ -47,13 +49,12 @@ module Cinch
 
     Reply = Struct.new(:text, :event, :time)
 
-    def make_bot(plugin, opts = {}, &b)
+    def make_bot(plugin = nil, opts = {}, &b)
       MockBot.new do
         configure do |c|
           c.nick = 'testbot'
           c.server = nil
-          c.channels = ['foo']
-          c.plugins.plugins = [plugin]
+          c.plugins.plugins = [plugin] unless plugin.nil?
           c.plugins.options[plugin] = opts
           c.reconnect = false
         end
@@ -124,8 +125,8 @@ module Cinch
       # See http://rubydoc.info/github/cinchrb/cinch/file/docs/events.md
       events = [:catchall, event]
 
-      # If the message has a channel add the :channel event
-      events << :channel unless message.channel.nil?
+      # If the message has a channel add the :channel event otherwise add private
+      events << message.channel.nil? ? :private : :channel
 
       # If the message is :private also trigger :message
       events << :message if events.include?(:private)
