@@ -84,39 +84,23 @@ module Cinch
       MockMessage.new(text, bot, opts)
     end
 
-    # Process message and return all replies.
-    # @parmam [Cinch::Test::MockMessage] message A MockMessage object.
-    # @param [Symbol] event The event type of the message.
-    def get_replies(message, event = :message)
-      mutex = Mutex.new
-      replies = []
-
-      # Catch all m.reply
+    def catch_replies(message, mutex, replies)
       (class << message; self; end).class_eval do
-        [:reply, :safe_reply].each do |name|
+        [:reply, :safe_reply, :action_reply, :safe_action_reply].each do |name|
           define_method name do |msg, prefix = false|
             msg = [user.nick, msg].join(': ') if prefix
-            if name == :safe_reply
+            if name == :safe_reply || name == :safe_action_reply
               msg = Cinch::Utilities::String.filter_string(msg)
             end
-            reply = Reply.new(msg, :message, Time.now)
-            mutex.synchronize { replies << reply }
-          end
-        end
-
-        # Catch all action.reply
-        [:action_reply, :safe_action_reply].each do |name|
-          define_method name do |msg|
-            if name == :safe_action_reply
-              msg = Cinch::Utilities::String.filter_string(msg)
-            end
-            reply = Reply.new(msg, :action, Time.now)
+            reply = Reply.new(msg, name.match(/action/) ? :action : :message,
+                              Time.now)
             mutex.synchronize { replies << reply }
           end
         end
       end
+    end
 
-      # Catch all user.(msg|send|privmsg)
+    def catch_direct_messages(message, mutex, replies)
       (class << message.user; self; end).class_eval do
         [:send, :msg, :privmsg].each do |method|
           define_method method do |msg, notice = false|
@@ -125,21 +109,35 @@ module Cinch
           end
         end
       end
+    end
 
-      # Catch all channel.send and action
-      if message.channel
-        (class << message.channel; self; end).class_eval do
-          define_method :send do |msg|
-            reply = Reply.new(msg, :channel, Time.now)
-            mutex.synchronize { replies << reply }
-          end
-
-          define_method :action do |msg|
-            reply = Reply.new(msg, :action, Time.now)
+    def catch_channel_messages(message, mutex, replies)
+      return unless message.channel
+      (class << message.channel; self; end).class_eval do
+        [[:send, :channel], [:action, :action]].each do |method, event|
+          define_method method do |msg|
+            reply = Reply.new(msg, event, Time.now)
             mutex.synchronize { replies << reply }
           end
         end
       end
+    end
+
+    # Process message and return all replies.
+    # @parmam [Cinch::Test::MockMessage] message A MockMessage object.
+    # @param [Symbol] event The event type of the message.
+    def get_replies(message, event = :message)
+      mutex = Mutex.new
+      replies = []
+
+      # Catch all m.reply
+      catch_replies(message, mutex, replies)
+
+      # Catch all user.(msg|send|privmsg)
+      catch_direct_messages(message, mutex, replies)
+
+      # Catch all channel.send and action
+      catch_channel_messages(message, mutex, replies)
 
       process_message(message, event)
 
