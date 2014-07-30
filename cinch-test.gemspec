@@ -8,22 +8,20 @@ Gem::Specification.new do |gem|
   gem.version       = Cinch::Test::VERSION
   gem.authors       = ['Jay Adkisson', 'Brian Haberer']
   gem.email         = ['jay@jayferd.us']
-  gem.summary       = %q{Helpers for testing Cinch Plugins}
-  gem.description   = %q{A collection of utility methods, mocks and methods for testing Cinch plugins}
+  gem.summary       = %q(Helpers for testing Cinch Plugins)
+  gem.description   = %q(A collection of utility methods, mocks and methods for testing Cinch plugins)
   gem.homepage      = 'http://github.com/jayferd/cinch-test'
   gem.license       = 'MIT'
 
   gem.files         = `git ls-files`.split($/)
-  gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
-  gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
+  gem.executables   = gem.files.grep(/^bin\//).map { |f| File.basename(f) }
+  gem.test_files    = gem.files.grep(/^(test|spec|features)\//)
   gem.require_paths = ['lib']
 
-  gem.add_development_dependency  'coveralls'
-  gem.add_development_dependency  'minitest'
-  gem.add_development_dependency  'wrong'
-  gem.add_development_dependency  'rake'
-  gem.add_development_dependency  'rr'
-  gem.add_development_dependency  'debugger'
-
-  gem.add_dependency              'cinch',       '~> 2.0.0'
+  gem.add_development_dependency 'coveralls', '~> 0.6'
+  gem.add_development_dependency 'minitest', '~> 5'
+  gem.add_development_dependency 'wrong', '~> 0.7'
+  gem.add_development_dependency 'rake', '~> 10'
+  gem.add_development_dependency 'rr', '~> 1.1'
+  gem.add_dependency 'cinch', '~> 2'
 end
