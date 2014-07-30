@@ -18,10 +18,10 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(/^(test|spec|features)\//)
   gem.require_paths = ['lib']
 
-  gem.add_development_dependency 'coveralls', '~> 0.6'
-  gem.add_development_dependency 'minitest', '~> 5'
-  gem.add_development_dependency 'wrong', '~> 0.7'
+
   gem.add_development_dependency 'rake', '~> 10'
-  gem.add_development_dependency 'rr', '~> 1.1'
+  gem.add_development_dependency 'rspec', '~> 3'
+  gem.add_development_dependency 'coveralls', '~> 0.7'
+
   gem.add_dependency 'cinch', '~> 2'
 end

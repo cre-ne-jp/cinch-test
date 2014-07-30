@@ -8,10 +8,4 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
 SimpleCov.start
 
 require 'cinch/test'
-require 'minitest'
-require 'minitest/autorun'
-require 'wrong/adapters/minitest'
-require 'rr'
-
-Wrong.config[:color] = true
-
+require 'my_plugin'
