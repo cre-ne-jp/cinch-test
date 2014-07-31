@@ -144,24 +144,14 @@ module Cinch
       replies
     end
 
-    private
-
     # Process message by dispatching it to the handlers
     # @param [Cinch::Test::MockMessage] message A MockMessage object.
     # @param [Symbol] event The event type of the message.
     def process_message(message, event)
       handlers = message.bot.handlers
 
-      # Deal with secondary event types
-      # See http://rubydoc.info/github/cinchrb/cinch/file/docs/events.md
-      events = [:catchall, event]
-
-      # If the message has a channel add the :channel event otherwise
-      #   add :private
-      events << message.channel.nil? ? :private : :channel
-
-      # If the message is :private also trigger :message
-      events << :message if events.include?(:private)
+      # Get a list of applicable event types.
+      events = get_events(message, event)
 
       # Dispatch each of the events to the handlers
       events.each { |e| handlers.dispatch(e, message) }
@@ -171,6 +161,21 @@ module Cinch
       handlers.each do |handler|
         handler.thread_group.list.each(&:join)
       end
+    end
+
+    def get_events(message, event)
+      # Deal with secondary event types
+      # See http://rubydoc.info/github/cinchrb/cinch/file/docs/events.md
+      events = event.is_a?(Array) ? [:catchall] + event : [:catchall, event]
+
+      # If the message has a channel add the :channel event otherwise
+      #   add :private
+      events << (message.channel.nil? ? :private : :channel)
+
+      # If the message is :private also trigger :message
+      events << :message if events.include?(:private)
+
+      events
     end
   end
 end

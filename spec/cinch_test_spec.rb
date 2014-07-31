@@ -7,6 +7,14 @@ describe Cinch::Test do
     @bot = make_bot(MyPlugin, foo: 'foo_value')
   end
 
+  describe 'Cinch::Test' do
+    it 'should add the :channel event to messages with a channel set' do
+      message = make_message(@bot, 'blah', channel: '#test')
+      expect(get_events(message, []))
+        .to include(:channel)
+    end
+  end
+
   describe 'Mock bot' do
     it 'makes a test bot without a config' do
       bot = make_bot(MyPlugin)
@@ -24,49 +32,47 @@ describe Cinch::Test do
     end
   end
 
-  describe 'message events' do
-    it 'messages a test bot and gets a reply' do
+  describe 'Messages' do
+    it 'sent directly to a test bot get a logged reply' do
       message = make_message(@bot, '!bar')
       replies = get_replies(message)
       expect(replies.first.text).to eq('bar reply')
     end
 
-    it 'messages a test bot and gets a prefixed reply' do
+    it 'sent directly to a test bot and can receive a prefixed reply' do
       replies = get_replies(make_message(@bot, '!baz'))
       expect(replies.first.text).to eq('test: baz reply')
     end
-  end
 
-  describe 'user events' do
-    it 'captures messages sent to users' do
+    it 'sent to users are logged' do
       r = get_replies(make_message(@bot, '!message', channel: '#test')).first
       expect(r.text).to eq('a message!')
       expect(r.event).to eq(:private)
     end
-  end
 
-  describe '#make_message with action_reply' do
-    it 'messages a test bot and gets an action' do
+    it 'sent to a bot can be responded to with a logged action' do
       replies = get_replies(make_message(@bot, '!scallops'))
       expect(replies.first.text).to eq('loves shellfish')
     end
-  end
 
-  describe 'channel events' do
-    # This will be fixed next rev, I hope.
-    it 'get triggered by channel events' do
+    it 'should trigger listeners' do
+      message = make_message(@bot, 'blah', channel: '#test')
+      expect(get_replies(message)).to_not be_empty
+    end
+
+    it 'should trigger listeners and log the output text' do
       message = make_message(@bot, 'blah', channel: '#test')
       replies = get_replies(message)
       expect(replies.first.text).to eq('I listen')
     end
 
-    it 'captures channel messages' do
-    r = get_replies(make_message(@bot, '!ping', channel: '#test')).first
+    it 'should trigger in channels properly' do
+      r = get_replies(make_message(@bot, '!ping', channel: '#test')).first
       expect(r.text).to eq('Pong?')
       expect(r.event).to eq(:channel)
     end
 
-    it 'captures a channel action' do
+    it 'that are events should trigger properly' do
       r = get_replies(make_message(@bot, '!dance', channel: '#test')).first
       expect(r.text).to eq('DANCES')
       expect(r.event).to eq(:action)
