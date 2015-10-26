@@ -39,6 +39,12 @@ describe Cinch::Test do
       expect(replies.first.text).to eq('bar reply')
     end
 
+    it 'sent directly to bot get correct number of replies' do
+      message = make_message(@bot, '!bar')
+      replies = get_replies(message)
+      expect(replies.size).to eq(1)
+    end
+
     it 'sent directly to a test bot and can receive a prefixed reply' do
       replies = get_replies(make_message(@bot, '!baz'))
       expect(replies.first.text).to eq('test: baz reply')
@@ -53,6 +59,12 @@ describe Cinch::Test do
     it 'sent to a bot can be responded to with a logged action' do
       replies = get_replies(make_message(@bot, '!scallops'))
       expect(replies.first.text).to eq('loves shellfish')
+    end
+
+    it 'sent to a channel get correct number of replies' do
+      message = make_message(@bot, '!bar', channel: '#test')
+      replies = get_replies(message)
+      expect(replies.size).to eq(1)
     end
 
     it 'should trigger listeners' do
