@@ -175,7 +175,7 @@ module Cinch
       # If the message is :private also trigger :message
       events << :message if events.include?(:private)
 
-      events
+      events.uniq
     end
   end
 end
