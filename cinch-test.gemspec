@@ -21,7 +21,7 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency 'rake', '~> 10'
   gem.add_development_dependency 'rspec', '~> 3'
-  gem.add_development_dependency 'coveralls', '~> 0.7'
+  gem.add_development_dependency 'codeclimate-test-reporter', '~> 0.4'
 
   gem.add_dependency 'cinch', '~> 2'
 end
