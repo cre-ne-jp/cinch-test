@@ -54,10 +54,10 @@ module Cinch
         @user = Cinch::User.new(opts.delete(:nick) { 'test' }, bot)
         if opts.key?(:channel)
           @channel = Cinch::Channel.new(opts.delete(:channel), bot)
+          @target = @channel
+        else
+          @target = @user
         end
-
-        # set the message target
-        @target = @channel || @user
 
         @bot.user_list.find_ensured(nil, @user.nick, nil)
       end
@@ -175,7 +175,7 @@ module Cinch
       # If the message is :private also trigger :message
       events << :message if events.include?(:private)
 
-      events
+      events.uniq
     end
   end
 end
