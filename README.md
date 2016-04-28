@@ -15,6 +15,9 @@
    with `get_replies(message)`
 
 ## Changelog
+* 0.1.2 (April 25, 2016)
+    * [Bug Fix] Responses for private messages no longer fire twice.
+    * [Bug Fix] Avoid a @channel not initialized warning for private messages.
 * 0.0.4 (July 2, 2013)
     * [Bug Fix] Should now capture any user.send|notice|privmsg, channel.send|action events that
         were previously ignored.
