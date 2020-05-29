@@ -19,9 +19,6 @@ Gem::Specification.new do |gem|
   gem.require_paths = ['lib']
 
 
-  gem.add_development_dependency 'rake', '~> 10'
+  gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec', '~> 3'
-  gem.add_development_dependency 'codeclimate-test-reporter', '~> 0.4'
-
-  gem.add_dependency 'cinch', '~> 2'
 end
